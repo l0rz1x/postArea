@@ -1,0 +1,22 @@
+const express = require("express");
+
+const router = express.Router();
+const { posts } = require("../models/");
+
+router.get("/", async (req, res) => {
+  const listOfPosts = await posts.findAll();
+  res.json(listOfPosts);
+});
+router.get("/byId/:id", async (req, res) => {
+  const id = req.params.id;
+  const postData = await posts.findByPk(id);
+  res.json(postData);
+});
+
+router.post("/", async (req, res) => {
+  const post = req.body;
+  await posts.create(post);
+  res.json(post);
+});
+
+module.exports = router;
