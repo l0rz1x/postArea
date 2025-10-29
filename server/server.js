@@ -9,8 +9,10 @@ const db = require("./models");
 
 // routers
 const postRouter = require("./routes/posts");
-
 app.use("/posts", postRouter);
+
+const commentRouter = require("./routes/comments");
+app.use("/comments", commentRouter);
 
 app.get("/api", (req, res) => {
   res.json({
