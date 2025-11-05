@@ -14,11 +14,8 @@ app.use("/posts", postRouter);
 const commentRouter = require("./routes/comments");
 app.use("/comments", commentRouter);
 
-app.get("/api", (req, res) => {
-  res.json({
-    users: ["userOne", "userTwo", "userThree", "if this works u are"],
-  });
-});
+const usersRouter = require("./routes/users");
+app.use("/auth", usersRouter);
 
 db.sequelize.sync().then(() => {
   app.listen(5000, () => {

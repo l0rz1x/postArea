@@ -21,14 +21,26 @@ function Posts() {
   const addComment = () => {
     if (newComment != "") {
       axios
-        .post(`http://localhost:3000/comments`, {
-          commentBody: newComment,
-          postId: id,
-        })
+        .post(
+          `http://localhost:3000/comments`,
+          {
+            commentBody: newComment,
+            postId: id,
+          },
+          {
+            headers: {
+              accessToken: sessionStorage.getItem("accessToken"),
+            },
+          }
+        )
         .then((response) => {
-          const comToAdd = { commentBody: newComment };
-          setComData([...comData, comToAdd]);
-          setNewComment("");
+          if (response.data.error) {
+            alert(response.data.error);
+          } else {
+            const comToAdd = { commentBody: newComment };
+            setComData([...comData, comToAdd]);
+            setNewComment("");
+          }
         });
     }
   };
