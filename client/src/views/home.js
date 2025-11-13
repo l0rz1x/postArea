@@ -1,8 +1,8 @@
 import React from "react";
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom"
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import "../App.css";
+import "./styles/home.css";
 
 function Home() {
   const [backendData, setBackendData] = useState([]);
@@ -13,15 +13,22 @@ function Home() {
     });
   }, []);
   return (
-    <div className="App">
+    <div className="Home">
       {backendData.map((val, key) => {
         return (
-          <div className="post" key={key} onClick={() => {
-            navigate(`/posts/${val.id}`)
-          }}>
+          <div
+            className="post"
+            key={key}
+            onClick={() => {
+              navigate(`/posts/${val.id}`);
+            }}
+          >
             <div className="title">{val.title}</div>
             <div className="body">{val.PostText}</div>
-            <div className="footer">{val.userName}</div>
+            <div className="footer">
+              <div className="user">@{val.userName}</div>
+              <div className="arrow">➜</div>
+            </div>
           </div>
         );
       })}

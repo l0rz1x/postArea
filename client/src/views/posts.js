@@ -1,15 +1,15 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import "./styles/posts.css";
+import { authContext } from "../helpers/authContext";
 
-import { useNavigate } from "react-router-dom";
 function Posts() {
-  let navigate = useNavigate();
   let { id } = useParams();
   const [postData, setPostData] = useState({});
   const [comData, setComData] = useState([]);
   const [newComment, setNewComment] = useState("");
+  const { authState } = useContext(authContext);
   useEffect(() => {
     axios.get(`http://localhost:5000/posts/byId/${id}`).then((response) => {
       setPostData(response.data);
@@ -19,7 +19,7 @@ function Posts() {
     });
   }, []);
   const addComment = () => {
-    if (newComment != "") {
+    if (newComment !== "") {
       axios
         .post(
           `http://localhost:3000/comments`,
@@ -29,7 +29,7 @@ function Posts() {
           },
           {
             headers: {
-              accessToken: sessionStorage.getItem("accessToken"),
+              accessToken: localStorage.getItem("accessToken"),
             },
           }
         )
@@ -37,12 +37,29 @@ function Posts() {
           if (response.data.error) {
             alert(response.data.error);
           } else {
-            const comToAdd = { commentBody: newComment };
+            const comToAdd = {
+              commentBody: newComment,
+              userName: response.data.userName,
+              id: response.data.id,
+            };
             setComData([...comData, comToAdd]);
             setNewComment("");
           }
         });
     }
+  };
+  const deleteComment = (id) => {
+    axios
+      .delete(`http://localhost:3000/comments/${id}`, {
+        headers: { accessToken: localStorage.getItem("accessToken") },
+      })
+      .then(() => {
+        setComData(
+          comData.filter((val) => {
+            return val.id != id;
+          })
+        );
+      });
   };
   return (
     <div className="Posts">
@@ -50,7 +67,7 @@ function Posts() {
         <h2>Post Section</h2>
         <div className="title">{postData.title}</div>
         <div className="postText">{postData.PostText}</div>
-        <div className="userName">{postData.userName}</div>
+        <div className="userName">@{postData.userName}</div>
       </div>
       <div className="commentSide">
         <h2>Comment Section</h2>
@@ -69,7 +86,23 @@ function Posts() {
         </div>
         <div className="comments">
           {comData.map((val, key) => {
-            return <div key={key}>{val.commentBody}</div>;
+            return (
+              <div key={key}>
+                <div className="user-comment">{val.commentBody}</div>
+                <div className="user-name">@{val.userName}</div>
+                {authState.userName === val.userName && (
+                  <button
+                    onClick={() => {
+                      deleteComment(val.id);
+                    }}
+                    className="delete-btn"
+                    aria-label={`Delete comment by ${val.userName}`}
+                  >
+                    ×
+                  </button>
+                )}
+              </div>
+            );
           })}
         </div>
       </div>

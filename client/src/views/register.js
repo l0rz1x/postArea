@@ -5,7 +5,7 @@ import axios from "axios";
 import "./styles/register.css";
 
 function Register() {
-  const initalValues = {
+  const initialValues = {
     userName: "",
     password: "",
   };
@@ -21,23 +21,23 @@ function Register() {
   return (
     <div className="Register">
       <Formik
-        initialValues={initalValues}
+        initialValues={initialValues}
         onSubmit={onSubmit}
         validationSchema={validationSchema}
       >
         <Form className="reg-formContainer">
           <label htmlFor="reg-userName">Username: </label>
-          <ErrorMessage name="reg-userName" component="span" />
+          <ErrorMessage name="userName" component="span" />
           <Field
             id="reg-userName"
-            name="reg-userName"
+            name="userName"
             placeholder="(Ex. JHon-cena)"
           />
           <label htmlFor="reg-password">Password: </label>
-          <ErrorMessage name="reg-password" component="span" />
+          <ErrorMessage name="password" component="span" />
           <Field
             id="reg-password"
-            name="reg-password"
+            name="password"
             type="password"
             placeholder="(Ex. password...)"
           />

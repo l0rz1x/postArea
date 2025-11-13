@@ -166,6 +166,25 @@
   box-shadow: 0 2px 4px rgba(8,40,40,0.04);
 }
 
+
+.user-comment {
+    font-size: 0.95rem;
+    line-height: 1.5;
+    color: #1f2937;
+    margin-bottom: 6px;
+    word-wrap: break-word;
+}
+
+.user-name {
+    font-size: 0.8rem;
+    color: #0AA3A3;
+    font-weight: 600;
+    padding-top: 4px;
+    border-top: 1px solid rgba(10, 163, 163, 0.08);
+    text-align: right;
+}
+
+
 .commentSide h2 {
   font-size: 1.25rem;
   color: var(--accent-dark);
@@ -207,4 +226,13 @@
   }
   .postSide .title { font-size: 1.5rem; }
   .postSide .postText { font-size: 0.98rem; }
+}
+@media (max-width: 480px) {
+    .user-comment {
+        font-size: 0.9rem;
+    }
+    
+    .user-name {
+        font-size: 0.75rem;
+    }
 }
