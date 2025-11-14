@@ -40,7 +40,6 @@
     font-size: 20px;
     font-weight: 700;
     color: #222;
-    padding: 20px 20px 0;
     }
 
     .body {
@@ -70,7 +69,7 @@
     font-weight: 600;
     color: var(--accentColor, #2f6d34);
     }
-
+    
 
     .footer .arrow {
     color: #aaa;
@@ -80,4 +79,42 @@
 
     .post:hover .arrow {
     color: #2f6d34;
+    }
+    .likes {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    }
+
+    /* Heart button */
+    .likes button {
+    border: none;
+    background: rgb(83, 77, 68);
+    color: white;
+    font-size: 18px;
+    line-height: 1;
+    padding: 6px 12px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: transform 0.15s ease, background 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    }
+
+    /* Hover effect */
+    .likes button:hover {
+    background: #ff3a3a;
+    transform: scale(1.15);
+    }
+
+    /* Likes counter */
+    .likes p {
+    margin: 0;
+    padding: 4px 8px;
+    background: #ffe5e5;
+    color: #b50000;
+    font-weight: 600;
+    border-radius: 8px;
+    font-size: 13px;
     }

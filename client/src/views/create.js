@@ -43,7 +43,7 @@ function Create() {
             name="PostText"
             placeholder="(Ex. one day...)"
           />
-          <label htmlFor="inputCreatePost">Title: </label>
+          <label htmlFor="inputCreatePost">Username: </label>
           <ErrorMessage name="userName" component="span" />
           <Field
             id="inputCreatePost"

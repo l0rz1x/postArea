@@ -56,7 +56,7 @@ function Posts() {
       .then(() => {
         setComData(
           comData.filter((val) => {
-            return val.id != id;
+            return val.id !== id;
           })
         );
       });
