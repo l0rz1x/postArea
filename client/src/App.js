@@ -8,6 +8,9 @@ import Register from "./views/register";
 import Login from "./views/login";
 import { authContext } from "./helpers/authContext";
 import axios from "axios";
+import PageNotFound from "./views/pageNotFound";
+import Start from "./views/start";
+import Profile from "./views/profile";
 function App() {
   const [authState, setAuthState] = useState({
     userName: "",
@@ -46,26 +49,45 @@ function App() {
       <authContext.Provider value={{ authState, setAuthState }}>
         <Router>
           <div className="navbar">
-            <Link to="/">Home Page</Link>
             {!authState.status ? (
               <>
+                <Link to="/start">Home</Link>
                 <Link to="/register">Register</Link>
                 <Link to="/login">Login</Link>
               </>
             ) : (
               <>
+                <Link to="/">Home Page</Link>
                 <Link to="/create">Create a Post</Link>
                 <button onClick={logout}>Logout</button>
-                <h1 className="username">@{authState.userName}</h1>
+
+                <Link
+                  to={`/profile/${authState.id}`}
+                  style={{
+                    margin: 0,
+                    padding: "8px 16px",
+                    borderRadius: "999px",
+                    fontSize: "15px",
+                    fontWeight: "600",
+                    color: "#0AA3A3",
+                    background: "rgba(10, 163, 163, 0.08)",
+                    border: "1px solid rgba(10, 163, 163, 0.12)",
+                  }}
+                >
+                  @{authState.userName}
+                </Link>
               </>
             )}
           </div>
           <Routes>
             <Route path="/" exact Component={Home} />
+            <Route path="/start" exact Component={Start} />
             <Route path="/create" exact Component={Create} />
             <Route path="/posts/:id" exact Component={Posts} />
             <Route path="/register" exact Component={Register} />
             <Route path="/login" exact Component={Login} />
+            <Route path="/profile/:id" exact Component={Profile} />
+            <Route path="*" exact Component={PageNotFound} />
           </Routes>
         </Router>
       </authContext.Provider>

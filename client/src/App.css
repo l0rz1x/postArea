@@ -84,6 +84,7 @@
 .navbar button:active {
   transform: translateY(0);
 }
+
 .username {
   margin: 0;
   padding: 8px 16px;
@@ -94,6 +95,7 @@
   background: rgba(10, 163, 163, 0.08);
   border: 1px solid rgba(10, 163, 163, 0.12);
 }
+
 
 /* responsive tweaks */
 @media (max-width: 520px) {

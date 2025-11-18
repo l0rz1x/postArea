@@ -20,6 +20,15 @@
     border: 1px solid rgba(255, 255, 255, 0.4);
     }
 
+    .post-text {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    word-break: break-word; 
+    min-height: 3em; 
+    }
 
     .post::before {
     content: "";
@@ -28,11 +37,11 @@
     left: 0;
     height: 6px;
     width: 100%;
-    background: var(--accent, linear-gradient(90deg, #ff8a00, #e52e71));
+    background: #221ea4;
     }
 
     .post:hover {
-    transform: translateY(-8px) scale(1.02);
+    transform: translateY(-1px) scale(1.02);
     box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
     }
 
@@ -70,6 +79,11 @@
     color: var(--accentColor, #2f6d34);
     }
     
+    .user a {
+    text-decoration: none;
+    font-weight: 600;
+    color: var(--accentColor, #2f6d34);
+    }
 
     .footer .arrow {
     color: #aaa;
@@ -86,10 +100,9 @@
     gap: 8px;
     }
 
-    /* Heart button */
+   
     .likes button {
     border: none;
-    background: rgb(83, 77, 68);
     color: white;
     font-size: 18px;
     line-height: 1;
@@ -102,13 +115,7 @@
     justify-content: center;
     }
 
-    /* Hover effect */
-    .likes button:hover {
-    background: #ff3a3a;
-    transform: scale(1.15);
-    }
-
-    /* Likes counter */
+   
     .likes p {
     margin: 0;
     padding: 4px 8px;
@@ -117,4 +124,22 @@
     font-weight: 600;
     border-radius: 8px;
     font-size: 13px;
+    }
+
+    .unliked{
+        background: rgb(83, 77, 68);
+    }
+
+    .liked{
+        background: #ff3a3a;
+    }
+
+    .likes .unliked:hover {
+    background: #ff3a3a;
+    transform: scale(1.15);
+    }
+
+    .likes .liked:hover {
+    background: rgb(83, 77, 68);
+    transform: scale(1.15);
     }

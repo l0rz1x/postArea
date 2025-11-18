@@ -1,7 +1,7 @@
 import React, { useState, useContext } from "react";
 import axios from "axios";
 import "./styles/login.css";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { authContext } from "../helpers/authContext";
 
 function Login() {
@@ -27,6 +27,7 @@ function Login() {
   };
   return (
     <div className="Login">
+      <h1 className="log-title">Login</h1>
       <div className="loginCon">
         <label htmlFor="log_username">Username: </label>
         <input
@@ -47,6 +48,7 @@ function Login() {
           }}
         />
         <button onClick={login}>Login</button>
+        <p>Dont have an account? {<Link to="/register">Register</Link>}</p>
       </div>
     </div>
   );

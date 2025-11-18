@@ -1,16 +1,32 @@
 import React from "react";
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import "./styles/home.css";
 
 function Home() {
   const [backendData, setBackendData] = useState([]);
+  const [likedPosts, setLikedPosts] = useState([]);
   let navigate = useNavigate();
   useEffect(() => {
-    axios.get("http://localhost:3000/posts").then((response) => {
-      setBackendData(response.data);
-    });
+    if (!localStorage.getItem("accessToken")) {
+      navigate("/login");
+    } else {
+      axios
+        .get("http://localhost:3000/posts", {
+          headers: {
+            accessToken: localStorage.getItem("accessToken"),
+          },
+        })
+        .then((response) => {
+          setBackendData(response.data.listOfPosts);
+          setLikedPosts(
+            response.data.likedPosts.map((like) => {
+              return like.postId;
+            })
+          );
+        });
+    }
   }, []);
 
   const likeAPost = (postId) => {
@@ -32,21 +48,31 @@ function Home() {
                 return { ...post, likes: [...post.likes, 0] };
               } else {
                 const likesArray = post.likes;
-                likesArray.pop();
-                return { ...post, likes: likesArray };
+                const newLikesArray = [...likesArray];
+                newLikesArray.pop();
+                return { ...post, likes: newLikesArray };
               }
             } else {
               return post;
             }
           })
         );
+        if (likedPosts.includes(postId)) {
+          setLikedPosts(
+            likedPosts.filter((id) => {
+              return id !== postId;
+            })
+          );
+        } else {
+          setLikedPosts([...likedPosts, postId]);
+        }
       });
   };
   return (
     <div className="Home">
       {backendData.map((val, key) => {
         return (
-          <div className="post" key={key}>
+          <div className="post" key={val.id}>
             <div
               className="body"
               onClick={() => {
@@ -54,16 +80,19 @@ function Home() {
               }}
             >
               <h2 className="title">{val.title}</h2>
-              {val.PostText}
+              <div className="post-text">{val.PostText}</div>
             </div>
             <div className="footer">
-              <div className="user">@{val.userName}</div>
+              <div className="user">
+                <Link to={`/profile/${val.UserId}`}>@{val.userName}</Link>
+              </div>
               <div className="user">
                 {new Date(val.createdAt).toUTCString()}
               </div>
 
               <div className="likes">
                 <button
+                  className={likedPosts.includes(val.id) ? "liked" : "unliked"}
                   onClick={() => {
                     likeAPost(val.id);
                   }}
@@ -73,7 +102,14 @@ function Home() {
                 <p>{val.likes.length}</p>
               </div>
 
-              <div className="arrow">➜</div>
+              <div
+                className="arrow"
+                onClick={() => {
+                  navigate(`/posts/${val.id}`);
+                }}
+              >
+                ➜
+              </div>
             </div>
           </div>
         );

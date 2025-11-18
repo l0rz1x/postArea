@@ -20,7 +20,7 @@ app.use("/auth", usersRouter);
 const likesRouter = require("./routes/likes");
 app.use("/like", likesRouter);
 
-db.sequelize.sync().then(() => {
+db.sequelize.sync({ force: false }).then(() => {
   app.listen(5000, () => {
     console.log("server started at 5000");
   });

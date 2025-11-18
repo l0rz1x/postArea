@@ -1,11 +1,13 @@
 import React, { useEffect, useState, useContext } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import "./styles/posts.css";
 import { authContext } from "../helpers/authContext";
+import { Trash2, Send } from "lucide-react";
 
 function Posts() {
   let { id } = useParams();
+  let navigate = useNavigate();
   const [postData, setPostData] = useState({});
   const [comData, setComData] = useState([]);
   const [newComment, setNewComment] = useState("");
@@ -61,18 +63,39 @@ function Posts() {
         );
       });
   };
+  const deletePost = (id) => {
+    axios
+      .delete(`http://localhost:3000/posts/${id}`, {
+        headers: { accessToken: localStorage.getItem("accessToken") },
+      })
+      .then((response) => {
+        navigate("/");
+      });
+  };
   return (
     <div className="Posts">
       <div className="postSide">
-        <h2>Post Section</h2>
-        <div className="title">{postData.title}</div>
-        <div className="postText">{postData.PostText}</div>
-        <div className="userName">@{postData.userName}</div>
+        <h2 className="section-title">Post Content</h2>
+        <div className="post-con">
+          <div className="post-title">{postData.title}</div>
+          <div className="postText">{postData.PostText}</div>
+          <div className="userName">@{postData.userName}</div>
+        </div>
+        {authState.userName === postData.userName && (
+          <button
+            className="delete-post"
+            onClick={() => deletePost(postData.id)}
+          >
+            <Trash2 className="icon-sm" />
+          </button>
+        )}
       </div>
+
       <div className="commentSide">
-        <h2>Comment Section</h2>
+        <h2 className="section-title">Comments({comData.length})</h2>
         <div className="addComment">
           <input
+            className="comment-input"
             type="text"
             placeholder="Add Comment..."
             value={newComment}
@@ -80,30 +103,42 @@ function Posts() {
               setNewComment(event.target.value);
             }}
           />
-          <button type="submit" onClick={addComment}>
-            share
+          <button
+            type="submit"
+            className="share-button"
+            aria-label="Share Comment"
+            onClick={addComment}
+          >
+            <Send className="icon-sm" />
           </button>
         </div>
+
         <div className="comments">
-          {comData.map((val, key) => {
-            return (
-              <div key={key}>
-                <div className="user-comment">{val.commentBody}</div>
-                <div className="user-name">@{val.userName}</div>
-                {authState.userName === val.userName && (
-                  <button
-                    onClick={() => {
-                      deleteComment(val.id);
-                    }}
-                    className="delete-btn"
-                    aria-label={`Delete comment by ${val.userName}`}
-                  >
-                    ×
-                  </button>
-                )}
-              </div>
-            );
-          })}
+          {comData.length === 0 ? (
+            <p className="no-comments">
+              No comments yet. Be the first to share your thoughts!
+            </p>
+          ) : (
+            comData.map((val, key) => {
+              return (
+                <div key={key} className="comment-item">
+                  <div className="user-comment">{val.commentBody}</div>
+                  <div className="user-name">@{val.userName}</div>
+                  {authState.userName === val.userName && (
+                    <button
+                      onClick={() => {
+                        deleteComment(val.id);
+                      }}
+                      className="delete-btn"
+                      aria-label={`Delete comment by ${val.userName}`}
+                    >
+                      <Trash2 className="icon-xs" />
+                    </button>
+                  )}
+                </div>
+              );
+            })
+          )}
         </div>
       </div>
     </div>
