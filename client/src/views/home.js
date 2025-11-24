@@ -70,50 +70,67 @@ function Home() {
   };
   return (
     <div className="Home">
-      {backendData.map((val, key) => {
-        return (
-          <div className="post" key={val.id}>
-            <div
-              className="body"
-              onClick={() => {
-                navigate(`/posts/${val.id}`);
-              }}
-            >
-              <h2 className="title">{val.title}</h2>
-              <div className="post-text">{val.PostText}</div>
-            </div>
-            <div className="footer">
-              <div className="user">
-                <Link to={`/profile/${val.UserId}`}>@{val.userName}</Link>
-              </div>
-              <div className="user">
-                {new Date(val.createdAt).toUTCString()}
-              </div>
-
-              <div className="likes">
-                <button
-                  className={likedPosts.includes(val.id) ? "liked" : "unliked"}
-                  onClick={() => {
-                    likeAPost(val.id);
-                  }}
-                >
-                  ♥
-                </button>
-                <p>{val.likes.length}</p>
-              </div>
-
+      {backendData.length === 0 ? (
+        <div className="empty-state">
+          <h1>No Posts Yet!</h1>
+          <p>Be the first to share your thoughts.</p>
+          <button
+            className="create-post-button"
+            onClick={() => {
+              navigate("/create");
+            }}
+          >
+            Create The First Post
+          </button>
+        </div>
+      ) : (
+        backendData.map((val, key) => {
+          return (
+            <div className="post" key={val.id}>
               <div
-                className="arrow"
+                className="body"
                 onClick={() => {
                   navigate(`/posts/${val.id}`);
                 }}
               >
-                ➜
+                <h2 className="title">{val.title}</h2>
+                <div className="post-text">{val.PostText}</div>
+              </div>
+              <div className="footer">
+                <div className="user">
+                  <Link to={`/profile/${val.UserId}`}>@{val.userName}</Link>
+                </div>
+                <div className="user">
+                  {new Date(val.createdAt).toUTCString()}
+                </div>
+
+                <div className="likes">
+                  <button
+                    className={
+                      likedPosts.includes(val.id) ? "liked" : "unliked"
+                    }
+                    onClick={() => {
+                      likeAPost(val.id);
+                    }}
+                  >
+                    ♥
+                  </button>
+                  <p>{val.likes.length}</p>
+                </div>
+
+                <div
+                  className="arrow"
+                  onClick={() => {
+                    navigate(`/posts/${val.id}`);
+                  }}
+                >
+                  ➜
+                </div>
               </div>
             </div>
-          </div>
-        );
-      })}
+          );
+        })
+      )}
     </div>
   );
 }
