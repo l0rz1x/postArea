@@ -1,0 +1,96 @@
+.landing-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 90vh; /* Ekranı kaplasın */
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  padding: 20px;
+  gap: 50px; /* Yazı ile resim arasındaki boşluk */
+}
+
+.landing-content {
+  max-width: 500px;
+  text-align: left;
+}
+
+.landing-title {
+  font-size: 3.5rem;
+  color: #2c3e50;
+  margin-bottom: 20px;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.landing-subtitle {
+  font-size: 1.2rem;
+  color: #555;
+  margin-bottom: 40px;
+  line-height: 1.6;
+}
+
+.landing-buttons {
+  display: flex;
+  gap: 20px;
+}
+
+/* Buton Tasarımları */
+.btn-login, .btn-register {
+  text-decoration: none;
+  padding: 15px 30px;
+  border-radius: 30px;
+  font-weight: bold;
+  font-size: 1rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.btn-login {
+  background-color: white;
+  color: #007bff;
+  border: 2px solid #007bff;
+}
+
+.btn-register {
+  background-color: #007bff;
+  color: white;
+  border: 2px solid #007bff;
+  box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+}
+
+.btn-login:hover, .btn-register:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* Resim Alanı */
+.landing-image img {
+  max-width: 400px;
+  width: 100%;
+  animation: float 3s ease-in-out infinite; /* Havada süzülme efekti */
+}
+
+/* Havada süzülme animasyonu */
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-20px); }
+  100% { transform: translateY(0px); }
+}
+
+/* Mobil Uyumluluk */
+@media (max-width: 768px) {
+  .landing-container {
+    flex-direction: column-reverse; /* Mobilde resim üstte, yazı altta olsun */
+    text-align: center;
+  }
+  .landing-content {
+    text-align: center;
+  }
+  .landing-buttons {
+    justify-content: center;
+  }
+  .landing-title {
+    font-size: 2.5rem;
+  }
+  .landing-image img {
+    max-width: 250px;
+  }
+}

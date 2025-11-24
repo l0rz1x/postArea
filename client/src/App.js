@@ -9,8 +9,8 @@ import Login from "./views/login";
 import { authContext } from "./helpers/authContext";
 import axios from "axios";
 import PageNotFound from "./views/pageNotFound";
-import Start from "./views/start";
 import Profile from "./views/profile";
+import Landing from "./views/landing";
 function App() {
   const [authState, setAuthState] = useState({
     userName: "",
@@ -36,6 +36,7 @@ function App() {
         }
       });
   }, []);
+
   const logout = () => {
     localStorage.removeItem("accessToken");
     setAuthState({
@@ -43,6 +44,7 @@ function App() {
       id: 0,
       status: false,
     });
+    window.location.replace("/landing");
   };
   return (
     <div className="App">
@@ -51,7 +53,7 @@ function App() {
           <div className="navbar">
             {!authState.status ? (
               <>
-                <Link to="/start">Home</Link>
+                <Link to="/landing">Home</Link>
                 <Link to="/register">Register</Link>
                 <Link to="/login">Login</Link>
               </>
@@ -80,8 +82,12 @@ function App() {
             )}
           </div>
           <Routes>
-            <Route path="/" exact Component={Home} />
-            <Route path="/start" exact Component={Start} />
+            <Route
+              path="/"
+              exact
+              Component={!authState.status ? Landing : Home}
+            />
+            <Route path="/landing" exact Component={Landing} />
             <Route path="/create" exact Component={Create} />
             <Route path="/posts/:id" exact Component={Posts} />
             <Route path="/register" exact Component={Register} />

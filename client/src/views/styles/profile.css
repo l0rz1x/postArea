@@ -102,3 +102,9 @@
   margin-right: 5px;
   font-size: 1.2rem;
 }
+
+.no-posts{
+  text-align: center;
+  justify-content: center;
+  align-items: center;
+}
