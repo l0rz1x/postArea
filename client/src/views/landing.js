@@ -8,8 +8,8 @@ function Landing() {
       <div className="landing-content">
         <h1 className="landing-title">Welcome to Post Area!</h1>
         <p className="landing-subtitle">
-          Share your thoughts, connect with friends, and discover new posts
-          instantly. Join our community today.
+          Share your thoughts and discover new posts instantly. Join our
+          community today.
         </p>
 
         <div className="landing-buttons">
