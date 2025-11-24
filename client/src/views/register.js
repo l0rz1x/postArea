@@ -16,7 +16,7 @@ function Register() {
     password: Yup.string().min(4).max(20).required(),
   });
   const onSubmit = (data) => {
-    axios.post("http://localhost:3000/auth", data).then(() => {
+    axios.post("https://postarea.onrender.com/auth", data).then(() => {
       navigate("/login");
     });
   };

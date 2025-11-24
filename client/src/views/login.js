@@ -11,19 +11,21 @@ function Login() {
   const navigate = useNavigate();
   const login = () => {
     const data = { userName: userName, password: password };
-    axios.post("http://localhost:3000/auth/login", data).then((response) => {
-      if (response.data.error) {
-        alert(response.data.error);
-      } else {
-        localStorage.setItem("accessToken", response.data.accessToken);
-        setAuthState({
-          userName: response.data.userName,
-          id: response.data.id,
-          status: true,
-        });
-        navigate("/");
-      }
-    });
+    axios
+      .post("https://postarea.onrender.com/auth/login", data)
+      .then((response) => {
+        if (response.data.error) {
+          alert(response.data.error);
+        } else {
+          localStorage.setItem("accessToken", response.data.accessToken);
+          setAuthState({
+            userName: response.data.userName,
+            id: response.data.id,
+            status: true,
+          });
+          navigate("/");
+        }
+      });
   };
   return (
     <div className="Login">

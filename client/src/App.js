@@ -19,7 +19,7 @@ function App() {
   });
   useEffect(() => {
     axios
-      .get("http://localhost:3000/auth/check", {
+      .get("https://postarea.onrender.com/auth/check", {
         headers: {
           accessToken: localStorage.getItem("accessToken"),
         },

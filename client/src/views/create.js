@@ -18,7 +18,7 @@ function Create() {
   }, []);
   const onSubmit = (data) => {
     axios
-      .post("http://localhost:5000/posts", data, {
+      .post("https://postarea.onrender.com/posts", data, {
         headers: { accesstoken: localStorage.getItem("accessToken") },
       })
       .then((response) => {

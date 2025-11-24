@@ -13,18 +13,22 @@ function Posts() {
   const [newComment, setNewComment] = useState("");
   const { authState } = useContext(authContext);
   useEffect(() => {
-    axios.get(`http://localhost:5000/posts/byId/${id}`).then((response) => {
-      setPostData(response.data);
-    });
-    axios.get(`http://localhost:5000/comments/${id}`).then((response) => {
-      setComData(response.data);
-    });
+    axios
+      .get(`https://postarea.onrender.com/posts/byId/${id}`)
+      .then((response) => {
+        setPostData(response.data);
+      });
+    axios
+      .get(`https://postarea.onrender.com/comments/${id}`)
+      .then((response) => {
+        setComData(response.data);
+      });
   }, []);
   const addComment = () => {
     if (newComment !== "") {
       axios
         .post(
-          `http://localhost:3000/comments`,
+          `https://postarea.onrender.com/comments`,
           {
             commentBody: newComment,
             postId: id,

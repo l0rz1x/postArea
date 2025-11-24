@@ -13,7 +13,7 @@ function Home() {
       navigate("/login");
     } else {
       axios
-        .get("http://localhost:3000/posts", {
+        .get("https://postarea.onrender.com/posts", {
           headers: {
             accessToken: localStorage.getItem("accessToken"),
           },
@@ -32,7 +32,7 @@ function Home() {
   const likeAPost = (postId) => {
     axios
       .post(
-        "http://localhost:3000/like",
+        "https://postarea.onrender.com/like",
         { postId: postId },
         {
           headers: {

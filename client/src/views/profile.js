@@ -9,12 +9,16 @@ function Profile() {
   const [userName, setUserName] = useState("");
   const [userPostData, setUserPostData] = useState([]);
   useEffect(() => {
-    axios.get(`http://localhost:3000/auth/info/${id}`).then((response) => {
-      setUserName(response.data.userName);
-    });
-    axios.get(`http://localhost:3000/posts/byuserId/${id}`).then((response) => {
-      setUserPostData(response.data);
-    });
+    axios
+      .get(`https://postarea.onrender.com/auth/info/${id}`)
+      .then((response) => {
+        setUserName(response.data.userName);
+      });
+    axios
+      .get(`https://postarea.onrender.com/posts/byuserId/${id}`)
+      .then((response) => {
+        setUserPostData(response.data);
+      });
   }, []);
   return (
     <div className="profile-con">
