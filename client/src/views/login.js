@@ -1,59 +1,130 @@
-import React, { useState, useContext } from "react";
-import axios from "axios";
-import "./styles/login.css";
-import { useNavigate, Link } from "react-router-dom";
-import { authContext } from "../helpers/authContext";
+import React, { useState } from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import { User, Lock, Eye, EyeOff, LogIn } from "lucide-react";
+import { useAuth } from "../context/AuthContext";
+import { useToast } from "../context/ToastContext";
 
-function Login() {
+export default function Login() {
   const [userName, setUserName] = useState("");
   const [password, setPassword] = useState("");
-  const { setAuthState } = useContext(authContext);
+  const [showPassword, setShowPassword] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const { login } = useAuth();
+  const toast = useToast();
   const navigate = useNavigate();
-  const login = () => {
-    const data = { userName: userName, password: password };
-    axios
-      .post("https://postarea.onrender.com/auth/login", data)
-      .then((response) => {
-        if (response.data.error) {
-          alert(response.data.error);
-        } else {
-          localStorage.setItem("accessToken", response.data.accessToken);
-          setAuthState({
-            userName: response.data.userName,
-            id: response.data.id,
-            status: true,
-          });
-          navigate("/");
-        }
-      });
+  const location = useLocation();
+
+  const redirectPath = location.state?.from?.pathname || "/";
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!userName.trim() || !password) {
+      toast.error("Please enter both username and password.");
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      await login(userName.trim(), password);
+      toast.success(`Welcome back, @${userName.trim()}!`);
+      navigate(redirectPath, { replace: true });
+    } catch (err) {
+      toast.error(err.message || "Invalid credentials.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
+
   return (
-    <div className="Login">
-      <h1 className="log-title">Login</h1>
-      <div className="loginCon">
-        <label htmlFor="log_username">Username: </label>
-        <input
-          id="log_username"
-          type="text"
-          placeholder="(Ex. user...)"
-          onChange={(event) => {
-            setUserName(event.target.value);
-          }}
-        />
-        <label htmlFor="log-password">Password: </label>
-        <input
-          id="log-password"
-          type="password"
-          placeholder="(Ex. password...)"
-          onChange={(event) => {
-            setPassword(event.target.value);
-          }}
-        />
-        <button onClick={login}>Login</button>
-        <p>Dont have an account? {<Link to="/register">Register</Link>}</p>
+    <div className="auth-page">
+      <div className="auth-card">
+        {/* Card Header */}
+        <div className="auth-header">
+          <div className="auth-brand-badge">
+            <LogIn size={22} />
+          </div>
+          <h1 className="auth-title">Welcome Back</h1>
+          <p className="auth-subtitle">
+            Sign in to your PostArea account to continue
+          </p>
+        </div>
+
+        {/* Form */}
+        <form className="auth-form" onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label className="form-label" htmlFor="login-username">
+              Username
+            </label>
+            <div className="input-with-icon">
+              <User size={18} className="input-icon-left" />
+              <input
+                id="login-username"
+                type="text"
+                className="form-input has-icon-left"
+                placeholder="Enter your username"
+                value={userName}
+                onChange={(e) => setUserName(e.target.value)}
+                autoComplete="username"
+                required
+              />
+            </div>
+          </div>
+
+          <div className="form-group">
+            <label className="form-label" htmlFor="login-password">
+              Password
+            </label>
+            <div className="input-with-icon">
+              <Lock size={18} className="input-icon-left" />
+              <input
+                id="login-password"
+                type={showPassword ? "text" : "password"}
+                className="form-input has-icon-left has-icon-right"
+                placeholder="Enter your password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                autoComplete="current-password"
+                required
+              />
+              <button
+                type="button"
+                className="input-icon-right-btn"
+                onClick={() => setShowPassword((prev) => !prev)}
+                aria-label={showPassword ? "Hide password" : "Show password"}
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            className="btn btn-primary btn-block mt-3"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? (
+              <span>Signing in...</span>
+            ) : (
+              <>
+                <LogIn size={18} />
+                <span>Sign In</span>
+              </>
+            )}
+          </button>
+        </form>
+
+        {/* Footer */}
+        <div className="auth-footer">
+          <p>
+            Don't have an account?{" "}
+            <Link to="/register" className="auth-switch-link">
+              Create an account
+            </Link>
+          </p>
+        </div>
       </div>
     </div>
   );
 }
-
-export default Login;

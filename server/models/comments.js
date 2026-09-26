@@ -9,5 +9,13 @@ module.exports = (sequelize, DataType) => {
       allowNull: false,
     },
   });
+
+  comments.associate = (models) => {
+    comments.belongsTo(models.posts, {
+      foreignKey: "postId",
+      onDelete: "cascade",
+    });
+  };
+
   return comments;
 };

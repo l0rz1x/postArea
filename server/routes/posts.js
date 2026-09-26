@@ -1,54 +1,21 @@
 const express = require("express");
-const { validateToken } = require("../middlewares/authMiddleware");
 const router = express.Router();
-const { posts, likes } = require("../models/");
-const { route } = require("./comments");
+const postController = require("../controllers/postController");
+const { validateToken, optionalToken } = require("../middlewares/authMiddleware");
 
-router.get("/", validateToken, async (req, res) => {
-  const listOfPosts = await posts.findAll({ include: [likes] });
-  const likedPosts = await likes.findAll({ where: { userId: req.user.id } });
-  res.json({ listOfPosts: listOfPosts, likedPosts: likedPosts });
-});
-router.get("/byId/:id", async (req, res) => {
-  const id = req.params.id;
-  const postData = await posts.findByPk(id);
-  res.json(postData);
-});
+// GET /posts -> Get all posts (optionalToken allows feed to know if viewer liked them)
+router.get("/", optionalToken, postController.getAllPosts);
 
-router.get("/byuserId/:id", async (req, res) => {
-  const id = req.params.id;
-  const postData = await posts.findAll({
-    where: {
-      UserId: id,
-    },
-    include: [likes],
-  });
-  res.json(postData);
-});
+// GET /posts/byId/:id -> Get post by ID
+router.get("/byId/:id", postController.getPostById);
 
-router.post("/", validateToken, async (req, res) => {
-  const post = req.body;
-  post.userName = req.user.userName;
-  post.UserId = req.user.id;
-  await posts.create(post);
-  res.json(post);
-});
+// GET /posts/byuserId/:id -> Get posts by user ID
+router.get("/byuserId/:id", postController.getPostsByUserId);
 
-router.delete("/:postId", validateToken, async (req, res) => {
-  const postId = req.params.postId;
-  const userId = req.user.id;
+// POST /posts -> Create a post (requires auth)
+router.post("/", validateToken, postController.createPost);
 
-  const rowsDeleted = await posts.destroy({
-    where: {
-      id: postId,
-      UserId: userId,
-    },
-  });
-  if (rowsDeleted === 0) {
-    res.json({ error: "Post bulunamadı veya silme yetkiniz yok." });
-  } else {
-    res.json("DELETED SUCCESSFULLY");
-  }
-});
+// DELETE /posts/:postId -> Delete post (requires auth & ownership)
+router.delete("/:postId", validateToken, postController.deletePost);
 
 module.exports = router;

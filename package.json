@@ -1,0 +1,11 @@
+{
+  "name": "postarea-root",
+  "version": "1.0.0",
+  "private": true,
+  "description": "PostArea fullstack application root runner",
+  "scripts": {
+    "start": "npm start --prefix server",
+    "server": "npm start --prefix server",
+    "client": "npm start --prefix client"
+  }
+}

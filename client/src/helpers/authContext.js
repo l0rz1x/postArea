@@ -1,3 +1,1 @@
-import { createContext } from "react";
-
-export const authContext = createContext("");
+export { AuthContext as authContext, useAuth } from "../context/AuthContext";

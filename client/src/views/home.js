@@ -1,138 +1,199 @@
-import React from "react";
-import { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import axios from "axios";
-import "./styles/home.css";
+import {
+  PlusCircle,
+  RefreshCw,
+  MessageSquareDashed,
+  Compass,
+  Users,
+} from "lucide-react";
+import { postsApi } from "../api/postsApi";
+import { useAuth } from "../context/AuthContext";
+import { useToast } from "../context/ToastContext";
+import PostCard from "../components/PostCard";
+import AuthPromptModal from "../components/AuthPromptModal";
 
-function Home() {
-  const [backendData, setBackendData] = useState([]);
-  const [likedPosts, setLikedPosts] = useState([]);
-  let navigate = useNavigate();
+export default function Home() {
+  const navigate = useNavigate();
+  const toast = useToast();
+  const { isAuthenticated } = useAuth();
+
+  const [activeFeed, setActiveFeed] = useState("explore"); // "explore" | "following"
+  const [posts, setPosts] = useState([]);
+  const [likedPostIds, setLikedPostIds] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isAuthPromptOpen, setIsAuthPromptOpen] = useState(false);
+
+  const fetchPosts = useCallback(
+    async (feedType = activeFeed) => {
+      setIsLoading(true);
+      try {
+        const data = await postsApi.getAllPosts(feedType);
+        setPosts(data.listOfPosts || []);
+        if (Array.isArray(data.likedPosts)) {
+          setLikedPostIds(data.likedPosts.map((l) => l.postId));
+        }
+      } catch (err) {
+        toast.error(err.message || "Failed to load posts.");
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [activeFeed, toast]
+  );
+
   useEffect(() => {
-    if (!localStorage.getItem("accessToken")) {
-      navigate("/login");
-    } else {
-      axios
-        .get("https://postarea.onrender.com/posts", {
-          headers: {
-            accessToken: localStorage.getItem("accessToken"),
-          },
-        })
-        .then((response) => {
-          setBackendData(response.data.listOfPosts);
-          setLikedPosts(
-            response.data.likedPosts.map((like) => {
-              return like.postId;
-            })
-          );
-        });
-    }
-  }, []);
+    fetchPosts(activeFeed);
+  }, [activeFeed, fetchPosts]);
 
-  const likeAPost = (postId) => {
-    axios
-      .post(
-        "https://postarea.onrender.com/like",
-        { postId: postId },
-        {
-          headers: {
-            accessToken: localStorage.getItem("accessToken"),
-          },
-        }
-      )
-      .then((response) => {
-        setBackendData(
-          backendData.map((post) => {
-            if (post.id === postId) {
-              if (response.data.liked) {
-                return { ...post, likes: [...post.likes, 0] };
-              } else {
-                const likesArray = post.likes;
-                const newLikesArray = [...likesArray];
-                newLikesArray.pop();
-                return { ...post, likes: newLikesArray };
-              }
-            } else {
-              return post;
-            }
-          })
-        );
-        if (likedPosts.includes(postId)) {
-          setLikedPosts(
-            likedPosts.filter((id) => {
-              return id !== postId;
-            })
-          );
-        } else {
-          setLikedPosts([...likedPosts, postId]);
-        }
-      });
+  const handleFollowingTabClick = () => {
+    if (!isAuthenticated) {
+      setIsAuthPromptOpen(true);
+      return;
+    }
+    setActiveFeed("following");
   };
+
   return (
-    <div className="Home">
-      {backendData.length === 0 ? (
-        <div className="empty-state">
-          <h1>No Posts Yet!</h1>
-          <p>Be the first to share your thoughts.</p>
+    <div className="page-container feed-page">
+      {/* 1. Feed Navigation Tabs at the very TOP */}
+      <div className="feed-top-bar">
+        <div className="feed-tabs">
           <button
-            className="create-post-button"
-            onClick={() => {
-              navigate("/create");
-            }}
+            className={`feed-tab ${activeFeed === "explore" ? "active" : ""}`}
+            onClick={() => setActiveFeed("explore")}
           >
-            Create The First Post
+            <Compass size={18} />
+            <span>Explore</span>
+          </button>
+          <button
+            className={`feed-tab ${activeFeed === "following" ? "active" : ""}`}
+            onClick={handleFollowingTabClick}
+          >
+            <Users size={18} />
+            <span>Following</span>
           </button>
         </div>
-      ) : (
-        backendData.map((val, key) => {
-          return (
-            <div className="post" key={val.id}>
-              <div
-                className="body"
-                onClick={() => {
-                  navigate(`/posts/${val.id}`);
-                }}
-              >
-                <h2 className="title">{val.title}</h2>
-                <div className="post-text">{val.PostText}</div>
-              </div>
-              <div className="footer">
-                <div className="user">
-                  <Link to={`/profile/${val.UserId}`}>@{val.userName}</Link>
-                </div>
-                <div className="user">
-                  {new Date(val.createdAt).toUTCString()}
-                </div>
+      </div>
 
-                <div className="likes">
-                  <button
-                    className={
-                      likedPosts.includes(val.id) ? "liked" : "unliked"
-                    }
-                    onClick={() => {
-                      likeAPost(val.id);
-                    }}
-                  >
-                    ♥
-                  </button>
-                  <p>{val.likes.length}</p>
-                </div>
+      {/* 2. Feed Header */}
+      <div className="feed-header">
+        <div className="feed-title-wrap">
+          <h1 className="feed-title">
+            {activeFeed === "explore" ? "Community Feed" : "Following Feed"}
+          </h1>
+          <p className="feed-subtitle">
+            {activeFeed === "explore"
+              ? "Discover fresh ideas and perspectives from everyone across PostArea."
+              : "Latest posts from authors you follow."}
+          </p>
+        </div>
 
-                <div
-                  className="arrow"
-                  onClick={() => {
-                    navigate(`/posts/${val.id}`);
-                  }}
-                >
-                  ➜
-                </div>
+        <div className="feed-controls">
+          <button
+            className="btn btn-ghost btn-icon-only"
+            onClick={() => fetchPosts(activeFeed)}
+            title="Refresh feed"
+            aria-label="Refresh feed"
+          >
+            <RefreshCw size={18} />
+          </button>
+
+          {isAuthenticated ? (
+            <Link to="/create" className="btn btn-primary">
+              <PlusCircle size={18} />
+              <span>New Post</span>
+            </Link>
+          ) : (
+            <button
+              type="button"
+              className="btn btn-primary"
+              onClick={() => setIsAuthPromptOpen(true)}
+            >
+              <PlusCircle size={18} />
+              <span>New Post</span>
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* 3. Feed Content */}
+      {isLoading ? (
+        <div className="post-grid">
+          {[1, 2, 3, 4].map((n) => (
+            <div key={n} className="post-card-skeleton">
+              <div className="skeleton-line skeleton-avatar-row">
+                <div className="skeleton-circle"></div>
+                <div className="skeleton-text-short"></div>
               </div>
+              <div className="skeleton-line skeleton-title"></div>
+              <div className="skeleton-line skeleton-paragraph"></div>
+              <div className="skeleton-line skeleton-paragraph short"></div>
             </div>
-          );
-        })
+          ))}
+        </div>
+      ) : posts.length === 0 ? (
+        <div className="empty-feed-card">
+          <div className="empty-icon-wrap">
+            {activeFeed === "following" ? (
+              <Users size={48} />
+            ) : (
+              <MessageSquareDashed size={48} />
+            )}
+          </div>
+          <h2 className="empty-title">
+            {activeFeed === "following"
+              ? "No posts from accounts you follow yet"
+              : "No posts yet!"}
+          </h2>
+          <p className="empty-text">
+            {activeFeed === "following"
+              ? "Follow inspiring authors across PostArea to curate your personal feed, or discover content in the Explore feed."
+              : "Be the first person in the community to spark a conversation."}
+          </p>
+
+          {activeFeed === "following" ? (
+            <button
+              className="btn btn-primary btn-lg"
+              onClick={() => setActiveFeed("explore")}
+            >
+              <Compass size={18} />
+              <span>Explore Community Feed</span>
+            </button>
+          ) : (
+            <button
+              className="btn btn-primary btn-lg"
+              onClick={() => {
+                if (!isAuthenticated) {
+                  setIsAuthPromptOpen(true);
+                } else {
+                  navigate("/create");
+                }
+              }}
+            >
+              <PlusCircle size={18} />
+              <span>Create the First Post</span>
+            </button>
+          )}
+        </div>
+      ) : (
+        <div className="post-grid">
+          {posts.map((post) => (
+            <PostCard
+              key={post.id}
+              post={post}
+              isLikedInitial={likedPostIds.includes(post.id)}
+              onGuestAction={!isAuthenticated ? () => setIsAuthPromptOpen(true) : undefined}
+            />
+          ))}
+        </div>
       )}
+
+      {/* Auth Prompt Modal for guest interactions */}
+      <AuthPromptModal
+        isOpen={isAuthPromptOpen}
+        onClose={() => setIsAuthPromptOpen(false)}
+      />
     </div>
   );
 }
-
-export default Home;

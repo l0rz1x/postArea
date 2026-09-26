@@ -1,50 +1,24 @@
 const express = require("express");
 const router = express.Router();
-const { Users } = require("../models");
-const bcrypt = require("bcrypt");
-const { validateToken } = require("../middlewares/authMiddleware");
-const { sign } = require("jsonwebtoken");
+const authController = require("../controllers/authController");
+const { validateToken, optionalToken } = require("../middlewares/authMiddleware");
 
-router.post("/", async (req, res) => {
-  const { userName, password } = req.body;
-  bcrypt.hash(password, 10).then((hash) => {
-    Users.create({
-      userName: userName,
-      password: hash,
-    });
-    res.json("success");
-  });
-});
+// POST /auth -> Register
+router.post("/", authController.register);
 
-router.post("/login", async (req, res) => {
-  const { userName, password } = req.body;
-  const user = await Users.findOne({ where: { userName: userName } });
+// POST /auth/login -> Login
+router.post("/login", authController.login);
 
-  if (!user) {
-    res.json({ error: "ERROR user doesnt exist" });
-  } else {
-    bcrypt.compare(password, user.password).then((match) => {
-      if (!match) {
-        res.json({ error: "Wrong user name and password combination" });
-      } else {
-        const accessToken = sign(
-          { userName: user.userName, id: user.id },
-          "importantsecret"
-        );
-        res.json({ accessToken: accessToken, userName: userName, id: user.id });
-      }
-    });
-  }
-});
-router.get("/check", validateToken, (req, res) => {
-  res.json(req.user);
-});
+// GET /auth/check -> Check active token
+router.get("/check", validateToken, authController.checkAuth);
 
-router.get("/info/:id", async (req, res) => {
-  const id = req.params.id;
-  const info = await Users.findByPk(id, {
-    attributes: { exclude: ["password"] },
-  });
-  res.json(info);
-});
+// GET /auth/search?q=... -> Search users by name/username with privacy rules
+router.get("/search", optionalToken, authController.searchUsers);
+
+// GET /auth/info/:id -> User profile & stats (with optionalToken to know if viewer follows them)
+router.get("/info/:id", optionalToken, authController.getUserProfile);
+
+// PUT /auth/profile -> Update bio & avatar
+router.put("/profile", validateToken, authController.updateProfile);
+
 module.exports = router;

@@ -1,103 +1,99 @@
-import { BrowserRouter as Router, Route, Routes, Link } from "react-router-dom";
-import { useState, useEffect } from "react";
+import React from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import "./App.css";
+
+import { AuthProvider } from "./context/AuthContext";
+import { ToastProvider } from "./context/ToastContext";
+import Navbar from "./components/Navbar";
+import { ProtectedRoute, PublicRoute } from "./components/RouteGuards";
+
+import Landing from "./views/landing";
 import Home from "./views/home";
 import Create from "./views/create";
 import Posts from "./views/posts";
-import Register from "./views/register";
-import Login from "./views/login";
-import { authContext } from "./helpers/authContext";
-import axios from "axios";
-import PageNotFound from "./views/pageNotFound";
 import Profile from "./views/profile";
-import Landing from "./views/landing";
+import Login from "./views/login";
+import Register from "./views/register";
+import SearchPage from "./views/search";
+import PageNotFound from "./views/pageNotFound";
+
 function App() {
-  const [authState, setAuthState] = useState({
-    userName: "",
-    id: 0,
-    status: false,
-  });
-  useEffect(() => {
-    axios
-      .get("https://postarea.onrender.com/auth/check", {
-        headers: {
-          accessToken: localStorage.getItem("accessToken"),
-        },
-      })
-      .then((response) => {
-        if (response.data.error) {
-          setAuthState({ ...authState, status: false });
-        } else {
-          setAuthState({
-            userName: response.data.userName,
-            id: response.data.id,
-            status: true,
-          });
-        }
-      });
-  }, []);
-
-  const logout = () => {
-    localStorage.removeItem("accessToken");
-    setAuthState({
-      userName: "",
-      id: 0,
-      status: false,
-    });
-    window.location.replace("/landing");
-  };
   return (
-    <div className="App">
-      <authContext.Provider value={{ authState, setAuthState }}>
+    <AuthProvider>
+      <ToastProvider>
         <Router>
-          <div className="navbar">
-            {!authState.status ? (
-              <>
-                <Link to="/landing">Home</Link>
-                <Link to="/register">Register</Link>
-                <Link to="/login">Login</Link>
-              </>
-            ) : (
-              <>
-                <Link to="/">Home Page</Link>
-                <Link to="/create">Create a Post</Link>
-                <button onClick={logout}>Logout</button>
+          <div className="App">
+            <Navbar />
+            <main className="main-content">
+              <Routes>
+                {/* Root route: Shows Feed for members, Landing for guests */}
+                <Route
+                  path="/"
+                  element={
+                    <ProtectedRoute fallback={<Landing />}>
+                      <Home />
+                    </ProtectedRoute>
+                  }
+                />
 
-                <Link
-                  to={`/profile/${authState.id}`}
-                  style={{
-                    margin: 0,
-                    padding: "8px 16px",
-                    borderRadius: "999px",
-                    fontSize: "15px",
-                    fontWeight: "600",
-                    color: "#0AA3A3",
-                    background: "rgba(10, 163, 163, 0.08)",
-                    border: "1px solid rgba(10, 163, 163, 0.12)",
-                  }}
-                >
-                  @{authState.userName}
-                </Link>
-              </>
-            )}
+                {/* Direct Landing */}
+                <Route path="/landing" element={<Landing />} />
+
+                {/* Explore Feed: Accessible to all (guests see login prompt when interacting) */}
+                <Route path="/explore" element={<Home />} />
+
+                {/* Search Page: Only accessible for logged-in members */}
+                <Route
+                  path="/search"
+                  element={
+                    <ProtectedRoute>
+                      <SearchPage />
+                    </ProtectedRoute>
+                  }
+                />
+
+                {/* Protected Create Post Route */}
+                <Route
+                  path="/create"
+                  element={
+                    <ProtectedRoute>
+                      <Create />
+                    </ProtectedRoute>
+                  }
+                />
+
+                {/* Post Detail & Discussion */}
+                <Route path="/posts/:id" element={<Posts />} />
+
+                {/* User Profile */}
+                <Route path="/profile/:id" element={<Profile />} />
+
+                {/* Auth Routes: Only accessible when logged out */}
+                <Route
+                  path="/login"
+                  element={
+                    <PublicRoute>
+                      <Login />
+                    </PublicRoute>
+                  }
+                />
+                <Route
+                  path="/register"
+                  element={
+                    <PublicRoute>
+                      <Register />
+                    </PublicRoute>
+                  }
+                />
+
+                {/* 404 Catch All */}
+                <Route path="*" element={<PageNotFound />} />
+              </Routes>
+            </main>
           </div>
-          <Routes>
-            <Route
-              path="/"
-              exact
-              Component={!authState.status ? Landing : Home}
-            />
-            <Route path="/landing" exact Component={Landing} />
-            <Route path="/create" exact Component={Create} />
-            <Route path="/posts/:id" exact Component={Posts} />
-            <Route path="/register" exact Component={Register} />
-            <Route path="/login" exact Component={Login} />
-            <Route path="/profile/:id" exact Component={Profile} />
-            <Route path="*" exact Component={PageNotFound} />
-          </Routes>
         </Router>
-      </authContext.Provider>
-    </div>
+      </ToastProvider>
+    </AuthProvider>
   );
 }
 
