@@ -41,7 +41,7 @@ if (process.env.DATABASE_URL) {
   const password = process.env.DB_PASSWORD !== undefined ? process.env.DB_PASSWORD : config.password;
   const host = process.env.DB_HOST || config.host || '127.0.0.1';
   const port = process.env.DB_PORT || config.port || 3306;
-  const dialect = process.env.DB_DIALECT || config.dialect || 'sqlite';
+  const dialect = process.env.DB_DIALECT || config.dialect || 'mysql';
 
   if (dialect === 'sqlite') {
     sequelize = new Sequelize({
