@@ -44,6 +44,11 @@ export default function Posts() {
   const [commentToDelete, setCommentToDelete] = useState(null);
   const [isDeletingComment, setIsDeletingComment] = useState(false);
 
+  const toastRef = useRef(toast);
+  useEffect(() => {
+    toastRef.current = toast;
+  }, [toast]);
+
   const fetchPostDetails = useCallback(async () => {
     setIsLoading(true);
     try {
@@ -56,16 +61,20 @@ export default function Posts() {
 
       const likesArr = postData.likes || [];
       setLikesCount(likesArr.length);
-      if (user && likesArr.some((l) => (l.userId === user.id || l.UserId === user.id))) {
-        setIsLiked(true);
-      }
     } catch (err) {
-      toast.error(err.message || "Failed to load post.");
+      toastRef.current?.error(err.message || "Failed to load post.");
       navigate("/");
     } finally {
       setIsLoading(false);
     }
-  }, [id, user, navigate, toast]);
+  }, [id, navigate]);
+
+  // Sync isLiked when user or post changes
+  useEffect(() => {
+    if (post && user && Array.isArray(post.likes)) {
+      setIsLiked(post.likes.some((l) => (l.userId === user.id || l.UserId === user.id)));
+    }
+  }, [post, user]);
 
   useEffect(() => {
     fetchPostDetails();

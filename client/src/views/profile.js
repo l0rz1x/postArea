@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useRef } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import {
   Calendar,
@@ -55,6 +55,11 @@ export default function Profile() {
   const [postToDelete, setPostToDelete] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
+  const toastRef = useRef(toast);
+  useEffect(() => {
+    toastRef.current = toast;
+  }, [toast]);
+
   const fetchProfileData = useCallback(async () => {
     setIsLoading(true);
     try {
@@ -68,11 +73,11 @@ export default function Profile() {
       setFollowerCount(profileData.followerCount || 0);
       setFollowingCount(profileData.followingCount || 0);
     } catch (err) {
-      toast.error(err.message || "Failed to load profile.");
+      toastRef.current?.error(err.message || "Failed to load profile.");
     } finally {
       setIsLoading(false);
     }
-  }, [id, toast]);
+  }, [id]);
 
   useEffect(() => {
     fetchProfileData();

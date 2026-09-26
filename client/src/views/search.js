@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { Link } from "react-router-dom";
 import {
   Search as SearchIcon,
@@ -16,6 +16,11 @@ import PostCard from "../components/PostCard";
 
 export default function SearchPage() {
   const toast = useToast();
+  const toastRef = useRef(toast);
+
+  useEffect(() => {
+    toastRef.current = toast;
+  }, [toast]);
 
   const [posts, setPosts] = useState([]);
   const [likedPostIds, setLikedPostIds] = useState([]);
@@ -33,11 +38,11 @@ export default function SearchPage() {
         setLikedPostIds(data.likedPosts.map((l) => l.postId));
       }
     } catch (err) {
-      toast.error(err.message || "Failed to load posts.");
+      toastRef.current?.error(err.message || "Failed to load posts.");
     } finally {
       setIsLoading(false);
     }
-  }, [toast]);
+  }, []);
 
   useEffect(() => {
     fetchAllPosts();

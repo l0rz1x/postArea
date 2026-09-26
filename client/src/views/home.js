@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   PlusCircle,
@@ -16,7 +16,12 @@ import AuthPromptModal from "../components/AuthPromptModal";
 export default function Home() {
   const navigate = useNavigate();
   const toast = useToast();
+  const toastRef = useRef(toast);
   const { isAuthenticated } = useAuth();
+
+  useEffect(() => {
+    toastRef.current = toast;
+  }, [toast]);
 
   const [activeFeed, setActiveFeed] = useState("explore"); // "explore" | "following"
   const [posts, setPosts] = useState([]);
@@ -24,23 +29,20 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthPromptOpen, setIsAuthPromptOpen] = useState(false);
 
-  const fetchPosts = useCallback(
-    async (feedType = activeFeed) => {
-      setIsLoading(true);
-      try {
-        const data = await postsApi.getAllPosts(feedType);
-        setPosts(data.listOfPosts || []);
-        if (Array.isArray(data.likedPosts)) {
-          setLikedPostIds(data.likedPosts.map((l) => l.postId));
-        }
-      } catch (err) {
-        toast.error(err.message || "Failed to load posts.");
-      } finally {
-        setIsLoading(false);
+  const fetchPosts = useCallback(async (feedType) => {
+    setIsLoading(true);
+    try {
+      const data = await postsApi.getAllPosts(feedType);
+      setPosts(data.listOfPosts || []);
+      if (Array.isArray(data.likedPosts)) {
+        setLikedPostIds(data.likedPosts.map((l) => l.postId));
       }
-    },
-    [activeFeed, toast]
-  );
+    } catch (err) {
+      toastRef.current?.error(err.message || "Failed to load posts.");
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
     fetchPosts(activeFeed);

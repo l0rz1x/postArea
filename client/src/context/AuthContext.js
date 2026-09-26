@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
+import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from "react";
 import { authApi } from "../api/authApi";
 
 export const AuthContext = createContext(null);
@@ -6,7 +6,7 @@ export const AuthContext = createContext(null);
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(() => localStorage.getItem("accessToken") || "");
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(() => Boolean(localStorage.getItem("accessToken")));
 
   const logout = useCallback(() => {
     localStorage.removeItem("accessToken");
@@ -90,42 +90,46 @@ export function AuthProvider({ children }) {
     setUser((prev) => (prev ? { ...prev, ...userData } : userData));
   };
 
-  const authState = {
-    id: user?.id || 0,
-    userName: user?.userName || "",
-    status: !!user,
-  };
-
-  return (
-    <AuthContext.Provider
-      value={{
-        user,
-        token,
-        isAuthenticated: !!user,
-        isLoading,
-        login,
-        register,
-        logout,
-        checkAuth,
-        updateUser,
-        // Legacy compatibility
-        authState,
-        setAuthState: (state) => {
-          if (typeof state === "function") {
-            const next = state(authState);
-            if (next.status) {
-              setUser({ id: next.id, userName: next.userName });
-            } else {
-              setUser(null);
-            }
-          } else if (state && state.status) {
-            setUser({ id: state.id, userName: state.userName });
+  const contextValue = useMemo(
+    () => ({
+      user,
+      token,
+      isAuthenticated: !!user,
+      isLoading,
+      login,
+      register,
+      logout,
+      checkAuth,
+      updateUser,
+      authState: {
+        id: user?.id || 0,
+        userName: user?.userName || "",
+        status: !!user,
+      },
+      setAuthState: (state) => {
+        if (typeof state === "function") {
+          const next = state({
+            id: user?.id || 0,
+            userName: user?.userName || "",
+            status: !!user,
+          });
+          if (next.status) {
+            setUser({ id: next.id, userName: next.userName });
           } else {
             setUser(null);
           }
-        },
-      }}
-    >
+        } else if (state && state.status) {
+          setUser({ id: state.id, userName: state.userName });
+        } else {
+          setUser(null);
+        }
+      },
+    }),
+    [user, token, isLoading, checkAuth, logout]
+  );
+
+  return (
+    <AuthContext.Provider value={contextValue}>
       {children}
     </AuthContext.Provider>
   );
